@@ -21,8 +21,8 @@ jib {
         //image = 'gcr.io/distroless/java21-debian12'
     }
     to {
-      
-
+         image = "ghcr.io/khinsokha05/rtr-eureka-server"
+        tags = [project.version] as List<String>
         // For private registry authentication
         auth {
             username = ghcrUser
