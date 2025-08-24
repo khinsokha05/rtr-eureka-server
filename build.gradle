@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.3'
+}
+
+group = 'com.sokha'
+version = '1.0'
+
+ext {
+    set('springCloudVersion', "2025.0.0")
+    ghcrUser = project.findProperty("ghcr.user") ?: System.getenv("GHCR_USER")
+    ghcrToken = project.findProperty("ghcr.token") ?: System.getenv("GHCR_TOKEN")
+}
+
+// Jib Configuration
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre-alpine'
+        //image = 'gcr.io/distroless/java21-debian12'
+    }
+    to {
+      
+
+        // For private registry authentication
+        auth {
+            username = ghcrUser
+            password = ghcrToken
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
